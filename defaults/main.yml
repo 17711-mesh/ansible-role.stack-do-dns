@@ -1,70 +1,69 @@
 ---
-dns_stack_enable_unbound: true
-dns_stack_enable_adguard: true
+mesh_17711_stack_do__dns_stack_enable_unbound: true
+mesh_17711_stack_do__dns_stack_enable_adguard: true
 
-dns_stack_timezone: "Europe/Paris"
+mesh_17711_stack_do__dns_stack_timezone: "Europe/Paris"
 
-dns_stack_podman_compose_dir: "/data/17711/do/dns"
-dns_unbound_config_dir: "/data/17711/do/dns/config"
-dns_adguard_work_dir: "/data/17711/do/adguard/work"
-dns_adguard_conf_dir: "/data/17711/do/adguard/conf"
+mesh_17711_stack_do__dns_stack_podman_compose_dir: "/data/17711/do/dns"
+mesh_17711_stack_do__dns_unbound_config_dir: "/data/17711/do/dns/config"
+mesh_17711_stack_do__dns_adguard_work_dir: "/data/17711/do/adguard/work"
+mesh_17711_stack_do__dns_adguard_conf_dir: "/data/17711/do/adguard/conf"
 
-dns_unbound_image: "docker.io/crazymax/unbound:1.24.0"
-dns_adguard_image: "docker.io/adguard/adguardhome:v0.107.69"
+mesh_17711_stack_do__dns_unbound_image: "docker.io/crazymax/unbound:1.24.0"
+mesh_17711_stack_do__dns_adguard_image: "docker.io/adguard/adguardhome:v0.107.69"
 
 # User that owns and runs the DNS stack via systemd --user
-dns_stack_ops_user: "ops"
+mesh_17711_stack_do__dns_stack_ops_user: "ops"
 
 # Where the compose file is stored for this user
-dns_stack_compose_dir: "/home/{{ dns_stack_ops_user }}/.config/17711"
-dns_stack_compose_file: "{{ dns_stack_compose_dir }}/stack-do-dns.yml"
+mesh_17711_stack_do__dns_stack_compose_dir: "/home/{{ mesh_17711_stack_do__dns_stack_ops_user }}/.config/17711"
+mesh_17711_stack_do__dns_stack_compose_file: "{{ mesh_17711_stack_do__dns_stack_compose_dir }}/stack-do-dns.yml"
 
 # Quadlet directory for user services
-dns_stack_quadlet_dir: "/home/{{ dns_stack_ops_user }}/.config/containers/systemd"
-dns_stack_quadlet_unit_name: "stack-do-dns"
+mesh_17711_stack_do__dns_stack_quadlet_dir: "/home/{{ mesh_17711_stack_do__dns_stack_ops_user }}/.config/containers/systemd"
+mesh_17711_stack_do__dns_stack_quadlet_unit_name: "stack-do-dns"
 
 # Whether to create and enable the quadlet systemd user unit
-dns_stack_quadlet_enable: true
+mesh_17711_stack_do__dns_stack_quadlet_enable: true
 
 
-dns_enable_ipv6: true
+mesh_17711_stack_do__dns_enable_ipv6: true
 
-dns_bridge_lan_ipv4_cidr: "192.168.1.0/24"
-dns_wg_ipv4_cidr: "10.177.11.0/24"
+mesh_17711_stack_do__dns_bridge_lan_ipv4_cidr: "192.168.1.0/24"
+mesh_17711_stack_do__dns_wg_ipv4_cidr: "10.177.11.0/24"
 
-dns_private_ipv4_ranges:
+mesh_17711_stack_do__dns_private_ipv4_ranges:
   - "10.0.0.0/8"
   - "172.16.0.0/12"
   - "192.168.0.0/16"
-  - "{{ dns_wg_ipv4_cidr }}"
+  - "{{ mesh_17711_stack_do__dns_wg_ipv4_cidr }}"
 
-dns_private_ipv6_ranges:
+mesh_17711_stack_do__dns_private_ipv6_ranges:
   - "fd00::/8"
   - "fe80::/10"
 
-dns_allowed_ipv4_cidrs:
-  - "{{ dns_bridge_lan_ipv4_cidr }}"
-  - "{{ dns_wg_ipv4_cidr }}"
+mesh_17711_stack_do__dns_allowed_ipv4_cidrs:
+  - "{{ mesh_17711_stack_do__dns_bridge_lan_ipv4_cidr }}"
+  - "{{ mesh_17711_stack_do__dns_wg_ipv4_cidr }}"
 
-dns_allowed_ipv6_cidrs: "{{ dns_private_ipv6_ranges }}"
+mesh_17711_stack_do__dns_allowed_ipv6_cidrs: "{{ mesh_17711_stack_do__dns_private_ipv6_ranges }}"
 
-dns_admin_hostname_internal: "thierry1.mesh.17711"
-dns_admin_port: 3000
+mesh_17711_stack_do__dns_admin_hostname_internal: "thierry1.mesh.17711"
+mesh_17711_stack_do__dns_admin_port: 3000
 
 # DNS listen IPs for port 53 (AdGuard Home)
-dns_adguard_dns_bind_ipv4:
+mesh_17711_stack_do__dns_adguard_dns_bind_ipv4:
   - "192.168.1.10"
 
-dns_adguard_dns_bind_ipv6:
+mesh_17711_stack_do__dns_adguard_dns_bind_ipv6:
   - "2001:861:4748:81c0:dea6:32ff:fedf:bb90"
 
 # Upstream mode: recursive (false) or forwarders (true)
-dns_use_forwarders: false
-dns_forwarders:
+mesh_17711_stack_do__dns_use_forwarders: false
+mesh_17711_stack_do__dns_forwarders:
   - addr: "1.1.1.1"
     tls_host: "cloudflare-dns.com"
     port: 853
   - addr: "1.0.0.1"
     tls_host: "cloudflare-dns.com"
     port: 853
-

@@ -1,14 +1,14 @@
 server:
   # Listen on all container interfaces
   interface: 0.0.0.0
-{% if dns_enable_ipv6 %}
+{% if mesh_17711_stack_do__dns_enable_ipv6 %}
   interface: ::0
 {% endif %}
   port: 5053
 
   # Network protocols
   do-ip4: yes
-  do-ip6: {{ 'yes' if dns_enable_ipv6 else 'no' }}
+  do-ip6: {{ 'yes' if mesh_17711_stack_do__dns_enable_ipv6 else 'no' }}
   do-udp: yes
   do-tcp: yes
 
@@ -50,24 +50,24 @@ server:
   logfile: ""
 
   # Private IPv4 ranges
-{% for cidr in dns_private_ipv4_ranges %}
+{% for cidr in mesh_17711_stack_do__dns_private_ipv4_ranges %}
   private-address: {{ cidr }}
 {% endfor %}
 
   # Private IPv6 ranges
-{% for cidr in dns_private_ipv6_ranges %}
+{% for cidr in mesh_17711_stack_do__dns_private_ipv6_ranges %}
   private-address: {{ cidr }}
 {% endfor %}
 
   # ACLs IPv4 (LAN + WireGuard)
-{% for cidr in dns_allowed_ipv4_cidrs %}
+{% for cidr in mesh_17711_stack_do__dns_allowed_ipv4_cidrs %}
   access-control: {{ cidr }} allow
 {% endfor %}
   access-control: 127.0.0.0/8 allow
 
   # ACLs IPv6
-{% if dns_enable_ipv6 %}
-{% for cidr in dns_allowed_ipv6_cidrs %}
+{% if mesh_17711_stack_do__dns_enable_ipv6 %}
+{% for cidr in mesh_17711_stack_do__dns_allowed_ipv6_cidrs %}
   access-control: {{ cidr }} allow
 {% endfor %}
   access-control: ::1/128 allow
@@ -75,7 +75,7 @@ server:
 
   # Refuse everything else
   access-control: 0.0.0.0/0 refuse
-{% if dns_enable_ipv6 %}
+{% if mesh_17711_stack_do__dns_enable_ipv6 %}
   access-control: ::0/0 refuse
 {% endif %}
 

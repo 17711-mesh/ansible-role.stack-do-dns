@@ -1,6 +1,6 @@
 forward-zone:
   name: "."
   forward-tls-upstream: yes
-{% for f in dns_forwarders %}
+{% for f in mesh_17711_stack_do__dns_forwarders %}
   forward-addr: {{ f.addr }}@{{ f.port }}#{% if f.tls_host %}{{ f.tls_host }}{% endif %}
 {% endfor %}
