@@ -1,0 +1,115 @@
+---
+- name: Ensure base directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ dns_unbound_config_dir }}"
+    - "{{ dns_adguard_work_dir }}"
+    - "{{ dns_adguard_conf_dir }}"
+
+- name: Ensure compose directory exists for ops user
+  ansible.builtin.file:
+    path: "{{ dns_stack_compose_dir }}"
+    state: directory
+    owner: "{{ dns_stack_ops_user }}"
+    group: "{{ dns_stack_ops_user }}"
+    mode: "0755"
+
+- name: Ensure quadlet directory exists for ops user
+  ansible.builtin.file:
+    path: "{{ dns_stack_quadlet_dir }}"
+    state: directory
+    owner: "{{ dns_stack_ops_user }}"
+    group: "{{ dns_stack_ops_user }}"
+    mode: "0755"
+
+- name: Deploy Unbound hardening configuration
+  ansible.builtin.template:
+    src: "unbound-01-server-hardening.conf.j2"
+    dest: "{{ dns_unbound_config_dir }}/01-server-hardening.conf"
+    owner: root
+    group: root
+    mode: "0644"
+  when: dns_stack_enable_unbound
+
+- name: Deploy Unbound local mesh configuration
+  ansible.builtin.template:
+    src: "unbound-10-local-mesh.conf.j2"
+    dest: "{{ dns_unbound_config_dir }}/10-local-mesh.conf"
+    owner: root
+    group: root
+    mode: "0644"
+  when: dns_stack_enable_unbound
+
+- name: Deploy Unbound forwarders configuration (optional)
+  ansible.builtin.template:
+    src: "unbound-20-forward-upstream.conf.j2"
+    dest: "{{ dns_unbound_config_dir }}/20-forward-upstream.conf"
+    owner: root
+    group: root
+    mode: "0644"
+  when:
+    - dns_stack_enable_unbound
+    - dns_use_forwarders | bool
+
+- name: Remove Unbound forwarders configuration when disabled
+  ansible.builtin.file:
+    path: "{{ dns_unbound_config_dir }}/20-forward-upstream.conf"
+    state: absent
+  when:
+    - dns_stack_enable_unbound
+    - not dns_use_forwarders | bool
+
+- name: Deploy Podman compose file for DNS stack
+  ansible.builtin.template:
+    src: "podman-compose.yml.j2"
+    dest: "{{ dns_stack_compose_file }}"
+    owner: "{{ dns_stack_ops_user }}"
+    group: "{{ dns_stack_ops_user }}"
+    mode: "0644"
+
+- name: Deploy quadlet unit for DNS stack
+  ansible.builtin.template:
+    src: "stack-do-dns.compose.j2"
+    dest: "{{ dns_stack_quadlet_dir }}/{{ dns_stack_quadlet_unit_name }}.compose"
+    owner: "{{ dns_stack_ops_user }}"
+    group: "{{ dns_stack_ops_user }}"
+    mode: "0644"
+  when: dns_stack_quadlet_enable | bool
+
+- name: Reload user systemd daemon for DNS stack
+  become: true
+  become_user: "{{ dns_stack_ops_user }}"
+  ansible.builtin.command: systemctl --user daemon-reload
+  when: dns_stack_quadlet_enable | bool
+
+- name: Enable and start DNS stack user service
+  become: true
+  become_user: "{{ dns_stack_ops_user }}"
+  ansible.builtin.systemd:
+    name: "{{ dns_stack_quadlet_unit_name }}"
+    scope: user
+    enabled: true
+    state: started
+  when: dns_stack_quadlet_enable | bool
+
+- name: Stop and disable DNS stack user service when quadlet is disabled
+  become: true
+  become_user: "{{ dns_stack_ops_user }}"
+  ansible.builtin.systemd:
+    name: "{{ dns_stack_quadlet_unit_name }}"
+    scope: user
+    enabled: false
+    state: stopped
+  when: not dns_stack_quadlet_enable | bool
+
+
+- name: Ensure DNS stack is running with podman-compose
+  ansible.builtin.command:
+    cmd: "podman-compose -f {{ dns_stack_podman_compose_dir }}/podman-compose.yml up -d"
+  args:
+    chdir: "{{ dns_stack_podman_compose_dir }}"
+  register: dns_stack_podman_result
+  changed_when: "'Creating' in dns_stack_podman_result.stdout or 'Recreating' in dns_stack_podman_result.stdout"

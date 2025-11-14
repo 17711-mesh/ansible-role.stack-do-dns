@@ -1,0 +1,11 @@
+server:
+  private-domain: "{{ dns_admin_hostname_internal }}"
+  local-zone: "{{ dns_admin_hostname_internal }}." static
+
+  # Primary A/AAAA records for internal hostname
+{% if dns_adguard_dns_bind_ipv4|length > 0 %}
+  local-data: "{{ dns_admin_hostname_internal }}. IN A {{ dns_adguard_dns_bind_ipv4[0] }}"
+{% endif %}
+{% if dns_adguard_dns_bind_ipv6|length > 0 %}
+  local-data: "{{ dns_admin_hostname_internal }}. IN AAAA {{ dns_adguard_dns_bind_ipv6[0] }}"
+{% endif %}

@@ -1,0 +1,16 @@
+---
+galaxy_info:
+  role_name: stack-do-dns
+  author: mesh_17711
+  description: "Deploy a decentralized and privacy-focused Stack Do DNS for enhanced security within The 17711 Mesh."
+  license: "MIT"
+  min_ansible_version: "2.14"
+  namespace: "mesh_17711"
+  version: "0.1.0"
+  platforms:
+    - name: Debian
+      versions:
+        - "12"
+        - "13"
+
+dependencies: []

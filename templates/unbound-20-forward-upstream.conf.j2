@@ -1,0 +1,6 @@
+forward-zone:
+  name: "."
+  forward-tls-upstream: yes
+{% for f in dns_forwarders %}
+  forward-addr: {{ f.addr }}@{{ f.port }}#{% if f.tls_host %}{{ f.tls_host }}{% endif %}
+{% endfor %}

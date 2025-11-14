@@ -1,0 +1,85 @@
+server:
+  # Listen on all container interfaces
+  interface: 0.0.0.0
+{% if dns_enable_ipv6 %}
+  interface: ::0
+{% endif %}
+  port: 5053
+
+  # Network protocols
+  do-ip4: yes
+  do-ip6: {{ 'yes' if dns_enable_ipv6 else 'no' }}
+  do-udp: yes
+  do-tcp: yes
+
+  # Security and privacy hardening
+  hide-identity: yes
+  hide-version: yes
+  hide-trustanchor: yes
+
+  qname-minimisation: yes
+  qname-minimisation-strict: yes
+  aggressive-nsec: yes
+
+  harden-glue: yes
+  harden-dnssec-stripped: yes
+  harden-referral-path: yes
+  harden-algo-downgrade: yes
+  harden-short-bufsize: yes
+  harden-large-queries: yes
+
+  # Avoid fragmentation issues
+  edns-buffer-size: 1232
+
+  # Amplification protection
+  minimal-responses: yes
+  disable-any: yes
+
+  # Cache tuning
+  prefetch: yes
+  prefetch-key: yes
+  msg-cache-size: 64m
+  rrset-cache-size: 128m
+  cache-min-ttl: 120
+  cache-max-ttl: 86400
+  cache-max-negative-ttl: 3600
+
+  # Logging
+  verbosity: 1
+  log-queries: no
+  logfile: ""
+
+  # Private IPv4 ranges
+{% for cidr in dns_private_ipv4_ranges %}
+  private-address: {{ cidr }}
+{% endfor %}
+
+  # Private IPv6 ranges
+{% for cidr in dns_private_ipv6_ranges %}
+  private-address: {{ cidr }}
+{% endfor %}
+
+  # ACLs IPv4 (LAN + WireGuard)
+{% for cidr in dns_allowed_ipv4_cidrs %}
+  access-control: {{ cidr }} allow
+{% endfor %}
+  access-control: 127.0.0.0/8 allow
+
+  # ACLs IPv6
+{% if dns_enable_ipv6 %}
+{% for cidr in dns_allowed_ipv6_cidrs %}
+  access-control: {{ cidr }} allow
+{% endfor %}
+  access-control: ::1/128 allow
+{% endif %}
+
+  # Refuse everything else
+  access-control: 0.0.0.0/0 refuse
+{% if dns_enable_ipv6 %}
+  access-control: ::0/0 refuse
+{% endif %}
+
+  # DNSSEC validation
+  val-clean-additional: yes
+  val-permissive-mode: no
+  auto-trust-anchor-file: "/var/lib/unbound/root.key"
