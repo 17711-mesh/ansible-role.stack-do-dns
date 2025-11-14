@@ -64,7 +64,7 @@
 
 - name: Deploy Podman compose file for DNS stack
   ansible.builtin.template:
-    src: "podman-compose.yml.j2"
+    src: "stack-do-dns.compose.j2"
     dest: "{{ dns_stack_compose_file }}"
     owner: "{{ dns_stack_ops_user }}"
     group: "{{ dns_stack_ops_user }}"
