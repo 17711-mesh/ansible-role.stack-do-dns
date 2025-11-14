@@ -8,13 +8,33 @@
 - [Changelog](#changelog)
 - [License](#license)
 - [Get started](#get-started)
-- [Changelog](#changelog)
+- [Prerequisites](#prerequisites)
+- [Example with inventory](#example-with-inventory)
 
 ## Synopsis
 
 Deploy a decentralized and privacy-focused Stack Do DNS for enhanced security within The 17711 Mesh.
 
 ## Get started
+
+### Prerequisites
+
+This role requires Ansible to be installed on the control node. Here are some ways to install it:
+
+**Using pip (recommended):**
+
+```bash
+python3 -m pip install --user ansible
+```
+
+**Using a package manager (e.g., apt on Debian/Ubuntu):**
+
+```bash
+sudo apt update
+sudo apt install ansible
+```
+
+For more information, see the [Ansible installation guide](https://docs.ansible.com/ansible/latest/installation_guide/index.html).
 
 ### Installation
 
@@ -38,6 +58,34 @@ Here is an example of how to use this role in a playbook:
           - "192.168.1.50" # Custom IPv4 address for AdGuard Home
         dns_adguard_dns_bind_ipv6: [] # Disable IPv6 binding for AdGuard Home
         dns_stack_ops_user: "dnsuser" # Run services under a different user
+```
+
+### Example with inventory
+
+Here is an example of how to use this role with an inventory file:
+
+**Inventory file (`inventory.yml`):**
+
+```yaml
+all:
+  hosts:
+    dns_server_1:
+      ansible_host: 192.168.1.50
+      ansible_user: root
+```
+
+**Playbook file (`playbook.yml`):**
+
+```yaml
+- hosts: all
+  roles:
+    - role: ansible-role.stack-do-dns
+```
+
+**Command:**
+
+```bash
+ansible-playbook -i inventory.yml playbook.yml
 ```
 
 ### Role Variables
