@@ -66,8 +66,13 @@
   when:
     - mesh_17711_stack_do__dns_stack_enable_unbound or mesh_17711_stack_do__dns_stack_enable_adguard
 
+- name: Debug dns-stack.compose.yml
+  ansible.builtin.shell: cat /tmp/dns-stack.compose.yml
+  register: dns_stack_compose
+  changed_when: false
 
-
+- debug:
+    var: dns_stack_compose.stdout
 
 - name: Include compose-to-quadlet role to deploy DNS stack
   ansible.builtin.include_role:
