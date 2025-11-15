@@ -64,13 +64,6 @@
     - mesh_17711_stack_do__dns_stack_enable_unbound
     - not mesh_17711_stack_do__dns_use_forwarders | bool
 
-- name: Deploy Podman compose file for DNS stack
-  ansible.builtin.template:
-    src: "stack-do-dns.compose.j2"
-    dest: "{{ mesh_17711_stack_do__dns_stack_compose_file }}"
-    owner: "{{ mesh_17711_stack_do__dns_stack_ops_user }}"
-    group: "{{ mesh_17711_stack_do__dns_stack_ops_group }}"
-    mode: "0644"
 
 - name: Deploy quadlet unit for DNS stack
   ansible.builtin.template:
