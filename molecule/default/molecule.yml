@@ -10,7 +10,6 @@ platforms:
 
 provisioner:
   name: ansible
-  config_options:
   inventory:
     group_vars:
       all:
