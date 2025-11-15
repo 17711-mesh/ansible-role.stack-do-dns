@@ -3,6 +3,8 @@
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
+    owner: "{{ mesh_17711_stack_do__dns_stack_ops_user }}"
+    group: "{{ mesh_17711_stack_do__dns_stack_ops_group }}"
     mode: "0755"
   loop:
     - "{{ mesh_17711_stack_do__dns_unbound_config_dir }}"
@@ -14,7 +16,7 @@
     path: "{{ mesh_17711_stack_do__dns_stack_compose_dir }}"
     state: directory
     owner: "{{ mesh_17711_stack_do__dns_stack_ops_user }}"
-    group: "{{ mesh_17711_stack_do__dns_stack_ops_user }}"
+    group: "{{ mesh_17711_stack_do__dns_stack_ops_group }}"
     mode: "0755"
 
 - name: Ensure quadlet directory exists for ops user
@@ -22,15 +24,15 @@
     path: "{{ mesh_17711_stack_do__dns_stack_quadlet_dir }}"
     state: directory
     owner: "{{ mesh_17711_stack_do__dns_stack_ops_user }}"
-    group: "{{ mesh_17711_stack_do__dns_stack_ops_user }}"
+    group: "{{ mesh_17711_stack_do__dns_stack_ops_group }}"
     mode: "0755"
 
 - name: Deploy Unbound hardening configuration
   ansible.builtin.template:
     src: "unbound-01-server-hardening.conf.j2"
     dest: "{{ mesh_17711_stack_do__dns_unbound_config_dir }}/01-server-hardening.conf"
-    owner: root
-    group: root
+    owner: "{{ mesh_17711_stack_do__dns_stack_ops_user }}"
+    group: "{{ mesh_17711_stack_do__dns_stack_ops_group }}"
     mode: "0644"
   when: mesh_17711_stack_do__dns_stack_enable_unbound
 
@@ -38,8 +40,8 @@
   ansible.builtin.template:
     src: "unbound-10-local-mesh.conf.j2"
     dest: "{{ mesh_17711_stack_do__dns_unbound_config_dir }}/10-local-mesh.conf"
-    owner: root
-    group: root
+    owner: "{{ mesh_17711_stack_do__dns_stack_ops_user }}"
+    group: "{{ mesh_17711_stack_do__dns_stack_ops_group }}"
     mode: "0644"
   when: mesh_17711_stack_do__dns_stack_enable_unbound
 
@@ -47,8 +49,8 @@
   ansible.builtin.template:
     src: "unbound-20-forward-upstream.conf.j2"
     dest: "{{ mesh_17711_stack_do__dns_unbound_config_dir }}/20-forward-upstream.conf"
-    owner: root
-    group: root
+    owner: "{{ mesh_17711_stack_do__dns_stack_ops_user }}"
+    group: "{{ mesh_17711_stack_do__dns_stack_ops_group }}"
     mode: "0644"
   when:
     - mesh_17711_stack_do__dns_stack_enable_unbound
@@ -67,7 +69,7 @@
     src: "stack-do-dns.compose.j2"
     dest: "{{ mesh_17711_stack_do__dns_stack_compose_file }}"
     owner: "{{ mesh_17711_stack_do__dns_stack_ops_user }}"
-    group: "{{ mesh_17711_stack_do__dns_stack_ops_user }}"
+    group: "{{ mesh_17711_stack_do__dns_stack_ops_group }}"
     mode: "0644"
 
 - name: Deploy quadlet unit for DNS stack
@@ -75,7 +77,7 @@
     src: "stack-do-dns.compose.j2"
     dest: "{{ mesh_17711_stack_do__dns_stack_quadlet_dir }}/{{ mesh_17711_stack_do__dns_stack_quadlet_unit_name }}.compose"
     owner: "{{ mesh_17711_stack_do__dns_stack_ops_user }}"
-    group: "{{ mesh_17711_stack_do__dns_stack_ops_user }}"
+    group: "{{ mesh_17711_stack_do__dns_stack_ops_group }}"
     mode: "0644"
   when: mesh_17711_stack_do__dns_stack_quadlet_enable | bool
 
