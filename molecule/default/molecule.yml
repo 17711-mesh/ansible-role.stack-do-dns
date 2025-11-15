@@ -9,6 +9,12 @@ platforms:
 
 provisioner:
   name: ansible
+  log: true
+  options:
+    vvv: true
+  config_options:
+    defaults:
+      remote_tmp: /tmp/.ansible
   inventory:
     group_vars:
       all:
@@ -22,6 +28,7 @@ dependency:
   enabled: true
   options:
     force: true
+    requirements-file: collections.yml
 
 scenario:
   test_sequence:
@@ -31,4 +38,6 @@ scenario:
     - converge
     - verify
     - destroy
+  #ephemeral_directory: false
+
 

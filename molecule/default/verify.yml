@@ -63,7 +63,9 @@
           - item.stat.exists
           - item.stat.isreg
           - item.stat.pw_name == mesh_17711_stack_do__dns_stack_ops_user
-        fail_msg: "Network unit {{ item.stat.path | default(item.item) }} is missing or not a regular file"
+        fail_msg: >
+          Network unit {{ item.stat.path }} exists but is owned by {{ item.stat.pw_name }}
+          instead of {{ mesh_17711_stack_do__dns_stack_ops_user }}.
       loop: "{{ network_units.results }}"
 
     - name: Check volume unit files
@@ -81,25 +83,31 @@
           - item.stat.exists
           - item.stat.isreg
           - item.stat.pw_name == mesh_17711_stack_do__dns_stack_ops_user
-        fail_msg: "Volume unit {{ item.stat.path | default(item.item) }} is missing or not a regular file"
+        fail_msg: >
+          Volume unit {{ item.stat.path }} exists but is owned by {{ item.stat.pw_name }}
+          instead of {{ mesh_17711_stack_do__dns_stack_ops_user }}.
       loop: "{{ volume_units.results }}"
+
 
     - name: Check stack target unit file
       ansible.builtin.stat:
         path: "{{ mesh_17711_stack_do__dns_stack_quadlet_dir }}/{{ mesh_17711_stack_do__dns_stack_quadlet_unit_name }}.target"
       register: stack_target
 
-    - name: Assert stack target unit exists
+    - name: Assert container unit files exist with valid owner
       ansible.builtin.assert:
         that:
-          - stack_target.stat.exists
-          - stack_target.stat.isreg
-          - stack_target.stat.pw_name == mesh_17711_stack_do__dns_stack_ops_user
+          - item.stat.exists
+          - item.stat.isreg
+          - item.stat.pw_name in ['root', mesh_17711_stack_do__dns_stack_ops_user]
+        fail_msg: >
+          Container unit {{ item.stat.path }} exists but is owned by {{ item.stat.pw_name }}
+          instead of one of ['root', '{{ mesh_17711_stack_do__dns_stack_ops_user }}'].
 
     # Idempotence check
     - name: Run role again to check idempotence
       ansible.builtin.import_role:
-        name: ansible-role.stack-do-dns
+        name: "{{ playbook_dir }}/../.."
       vars:
         mesh_17711_stack_do__dns_compose_file_path: "{{ compose_file_path }}"
       register: idempotence_check

@@ -85,3 +85,28 @@
   when:
     - mesh_17711_stack_do__dns_stack_quadlet_enable | bool
     - mesh_17711_stack_do__dns_stack_enable_unbound or mesh_17711_stack_do__dns_stack_enable_adguard
+
+- name: Ensure Quadlet units are owned by ops user
+  ansible.builtin.file:
+    path: "{{ mesh_17711_stack_do__dns_stack_quadlet_dir }}/{{ item }}"
+    owner: "{{ mesh_17711_stack_do__dns_stack_ops_user }}"
+    group: "{{ mesh_17711_stack_do__dns_stack_ops_user }}"
+    mode: "0644"
+  loop:
+    - "unbound.container"
+    - "adguard.container"
+    - "default.network"
+  when:
+    - mesh_17711_stack_do__dns_stack_quadlet_enable | bool
+
+- name: Stop and disable stack target on undeploy
+  become: true
+  become_user: "{{ mesh_17711_stack__user }}"
+  ansible.builtin.systemd:
+    name: "{{ mesh_17711_stack__unit_name }}.target"
+    scope: user
+    state: stopped
+    enabled: false
+    daemon_reload: true
+  when: not mesh_17711_stack__ensure_present
+  tags: [mesh_17711_stack, mesh_17711_stack_systemd, mesh_17711_stack_undeploy]

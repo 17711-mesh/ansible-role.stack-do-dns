@@ -1,17 +1,19 @@
----
 - name: Converge
   hosts: all
   gather_facts: false
-  become: true # Need become for user creation and copying files to system paths
+  become: true
 
   vars:
-    # Variables for the role under test
     mesh_17711_stack_do__dns_stack_ops_user: "ops"
     mesh_17711_stack_do__dns_stack_quadlet_dir: "/home/ops/.config/containers/systemd"
-    ansible_role_compose_to_quadlet_version: "v0.1.0" # Explicitly set for consistency
-
-    # Path to the docker-compose.yml for the role to process
-    compose_file_path: "/tmp/docker-compose.yml"
+    mesh_17711_stack_do__dns_compose_file_path: "/tmp/dns-stack.compose.yml"
+    mesh_17711_stack_do__dns_unbound_image: "docker.io/crazymax/unbound:1.24.0"
+    mesh_17711_stack_do__dns_adguard_image: "docker.io/adguard/adguardhome:v0.107.69"
+    mesh_17711_stack_do__dns_unbound_config_dir: "/data/17711/do/dns/config"
+    mesh_17711_stack_do__dns_adguard_work_dir: "/data/17711/do/adguard/work"
+    mesh_17711_stack_do__dns_adguard_conf_dir: "/data/17711/do/adguard/conf"
+    mesh_17711_stack_do__dns_stack_enable_unbound: true
+    mesh_17711_stack_do__dns_stack_enable_adguard: true
 
   tasks:
     - name: Create ops user
@@ -21,18 +23,6 @@
         create_home: true
         shell: /bin/bash
 
-    - name: Copy docker-compose.yml to target
-      ansible.builtin.copy:
-        src: "{{ playbook_dir }}/files/docker-compose.yml"
-        dest: "{{ compose_file_path }}"
-        owner: "{{ mesh_17711_stack_do__dns_stack_ops_user }}"
-        group: "{{ mesh_17711_stack_do__dns_stack_ops_user }}"
-        mode: '0644'
-
     - name: Run ansible-role.stack-do-dns role
       ansible.builtin.import_role:
         name: "{{ playbook_dir }}/../.."
-      vars:
-        # Pass the compose file path to the role
-        mesh_17711_stack_do__dns_compose_file_path: "{{ compose_file_path }}"
-

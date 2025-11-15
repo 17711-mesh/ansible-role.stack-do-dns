@@ -3,19 +3,23 @@
   hosts: localhost
   connection: local
   gather_facts: false
+
+  collections:
+    - containers.podman
+
   tasks:
     - name: Build Podman image for Molecule
-      community.general.podman_image:
-        name: mesh-ansible-molecule:latest
-        build_path: ../../ # Path to the directory containing Dockerfile.molecule
-        containerfile: Dockerfile.molecule # Specify the Dockerfile name
-        state: present
-        source: build
-      # This task will ensure the image is built before Molecule attempts to create instances.
+      containers.podman.podman_image:
+        name: mesh-ansible-molecule
+        tag: latest
+        path: "{{ playbook_dir }}/../.." 
+        state: build
+        build:
+          file: "{{ playbook_dir }}/files/Containerfile"
 
-    - name: Create Molecule instances
-      ansible.builtin.include_role:
-        name: molecule_podman
-      vars:
-        scenario_name: default
-        platform_name: instance
+    - name: Create molecule instance(s)
+      containers.podman.podman_container:
+        name: instance
+        image: mesh-ansible-molecule:latest
+        state: started
+        detach: true
