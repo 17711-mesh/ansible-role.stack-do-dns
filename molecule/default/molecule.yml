@@ -4,7 +4,7 @@ driver:
 
 platforms:
   - name: instance
-    image: localhost/mesh-ansible-molecule:latest
+    image: mesh-ansible-molecule:latest
     pre_build_image: true
 
 provisioner:
@@ -19,7 +19,9 @@ provisioner:
 
 dependency:
   name: galaxy
-  enabled: false
+  enabled: true
+  options:
+    force: true
 
 scenario:
   test_sequence:

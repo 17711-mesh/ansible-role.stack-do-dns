@@ -4,3 +4,4 @@
   scm: git
   version: v0.1.0 # Static version for ansible-galaxy
 
+- name: community.general
