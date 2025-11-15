@@ -1,0 +1,24 @@
+FROM python:3.11-slim
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        git \
+        systemd \
+        ssh && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install Ansible
+RUN pip install --no-cache-dir ansible
+
+# Install python.compose-to-quadlet from GitHub
+RUN pip install --no-cache-dir \
+    git+https://github.com/17711-mesh/python.compose-to-quadlet.git
+
+# Install the dependent role from GitHub via ansible-galaxy
+RUN ansible-galaxy role install \
+      git+https://github.com/17711-mesh/ansible-role.compose-to-quadlet.git,master \
+      -p /etc/ansible/roles
+
+ENV ANSIBLE_ROLES_PATH=/etc/ansible/roles
+
+WORKDIR /work

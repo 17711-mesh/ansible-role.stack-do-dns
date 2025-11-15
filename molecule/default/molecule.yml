@@ -4,8 +4,7 @@ driver:
 
 platforms:
   - name: instance
-    image: "docker.io/library/python:3.11-slim"
-    privileged: true
+    image: localhost/mesh-ansible-molecule:latest
     pre_build_image: true
 
 provisioner:
@@ -20,10 +19,7 @@ provisioner:
 
 dependency:
   name: galaxy
-  enabled: true
-  options:
-    force: true
-    role-file: requirements.yml
+  enabled: false
 
 scenario:
   test_sequence:
