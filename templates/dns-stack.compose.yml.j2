@@ -12,16 +12,16 @@ services:
   adguard:
     image: "{{ mesh_17711_stack_do__dns_adguard_image }}"
     ports:
-    {% for ip in mesh_17711_stack_do__dns_adguard_dns_bind_ipv4 %}
+{%- for ip in mesh_17711_stack_do__dns_adguard_dns_bind_ipv4 %}
       - "{{ ip }}:53:53/tcp"
       - "{{ ip }}:53:53/udp"
-    {% endfor %}
-    {% if mesh_17711_stack_do__dns_enable_ipv6 %}
-    {% for ip in mesh_17711_stack_do__dns_adguard_dns_bind_ipv6 %}
+{%- endfor %}
+{%- if mesh_17711_stack_do__dns_enable_ipv6 %}
+{%- for ip in mesh_17711_stack_do__dns_adguard_dns_bind_ipv6 %}
       - "{{ ip }}:53:53/tcp"
       - "{{ ip }}:53:53/udp"
-    {% endfor %}
-    {% endif %}
+{%- endfor %}
+{%- endif %}
       - "127.0.0.1:{{ mesh_17711_stack_do__dns_admin_port }}:3000/tcp"
     volumes:
       - adguard-work:/opt/adguardhome/work
