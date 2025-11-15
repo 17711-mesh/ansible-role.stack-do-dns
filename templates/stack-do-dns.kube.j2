@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ mesh_17711_stack_do__dns_stack_quadlet_unit_name }}"
+spec:
+  containers:
+{% if mesh_17711_stack_do__dns_stack_enable_unbound | bool %}
+    - name: unbound
+      image: "{{ mesh_17711_stack_do__dns_unbound_image }}"
+      volumeMounts:
+        - name: unbound-config
+          mountPath: /etc/unbound
+          readOnly: true
+{% endif %}
+{% if mesh_17711_stack_do__dns_stack_enable_adguard | bool %}
+    - name: adguard
+      image: "{{ mesh_17711_stack_do__dns_adguard_image }}"
+      ports:
+      {% for ip in mesh_17711_stack_do__dns_adguard_dns_bind_ipv4 %}
+        - hostIP: "{{ ip }}"
+          hostPort: 53
+          containerPort: 53
+          protocol: TCP
+        - hostIP: "{{ ip }}"
+          hostPort: 53
+          containerPort: 53
+          protocol: UDP
+      {% endfor %}
+      {% if mesh_17711_stack_do__dns_enable_ipv6 %}
+      {% for ip in mesh_17711_stack_do__dns_adguard_dns_bind_ipv6 %}
+        - hostIP: "{{ ip }}"
+          hostPort: 53
+          containerPort: 53
+          protocol: TCP
+        - hostIP: "{{ ip }}"
+          hostPort: 53
+          containerPort: 53
+          protocol: UDP
+      {% endfor %}
+      {% endif %}
+        - hostIP: 127.0.0.1
+          hostPort: {{ mesh_17711_stack_do__dns_admin_port }}
+          containerPort: 3000
+          protocol: TCP
+      volumeMounts:
+        - name: adguard-work
+          mountPath: /opt/adguardhome/work
+        - name: adguard-conf
+          mountPath: /opt/adguardhome/conf
+{% endif %}
+  volumes:
+{% if mesh_17711_stack_do__dns_stack_enable_unbound | bool %}
+    - name: unbound-config
+      hostPath:
+        path: "{{ mesh_17711_stack_do__dns_unbound_config_dir }}"
+        type: Directory
+{% endif %}
+{% if mesh_17711_stack_do__dns_stack_enable_adguard | bool %}
+    - name: adguard-work
+      hostPath:
+        path: "{{ mesh_17711_stack_do__dns_adguard_work_dir }}"
+        type: Directory
+    - name: adguard-conf
+      hostPath:
+        path: "{{ mesh_17711_stack_do__dns_adguard_conf_dir }}"
+        type: Directory
+{% endif %}

@@ -11,14 +11,6 @@
     - "{{ mesh_17711_stack_do__dns_adguard_work_dir }}"
     - "{{ mesh_17711_stack_do__dns_adguard_conf_dir }}"
 
-- name: Ensure compose directory exists for ops user
-  ansible.builtin.file:
-    path: "{{ mesh_17711_stack_do__dns_stack_compose_dir }}"
-    state: directory
-    owner: "{{ mesh_17711_stack_do__dns_stack_ops_user }}"
-    group: "{{ mesh_17711_stack_do__dns_stack_ops_group }}"
-    mode: "0755"
-
 - name: Ensure quadlet directory exists for ops user
   ansible.builtin.file:
     path: "{{ mesh_17711_stack_do__dns_stack_quadlet_dir }}"
@@ -65,21 +57,13 @@
     - not mesh_17711_stack_do__dns_use_forwarders | bool
 
 
-- name: Deploy Podman compose file for podlet
+- name: Deploy quadlet kube file for the stack
   ansible.builtin.template:
-    src: "stack-do-dns.compose.j2"
-    dest: "{{ mesh_17711_stack_do__dns_stack_compose_file }}"
+    src: "stack-do-dns.kube.j2"
+    dest: "{{ mesh_17711_stack_do__dns_stack_quadlet_dir }}/{{ mesh_17711_stack_do__dns_stack_quadlet_unit_name }}.kube"
     owner: "{{ mesh_17711_stack_do__dns_stack_ops_user }}"
     group: "{{ mesh_17711_stack_do__dns_stack_ops_group }}"
     mode: "0644"
-  when: mesh_17711_stack_do__dns_stack_quadlet_enable | bool
-
-- name: Generate quadlet file from compose file with podlet
-  become: true
-  become_user: "{{ mesh_17711_stack_do__dns_stack_ops_user }}"
-  ansible.builtin.shell:
-    cmd: "podman run --rm -v {{ mesh_17711_stack_do__dns_stack_compose_dir }}:/workdir:ro ghcr.io/containers/podlet compose --file /workdir/stack-do-dns.yml > {{ mesh_17711_stack_do__dns_stack_quadlet_dir }}/{{ mesh_17711_stack_do__dns_stack_quadlet_unit_name }}.kube"
-    creates: "{{ mesh_17711_stack_do__dns_stack_quadlet_dir }}/{{ mesh_17711_stack_do__dns_stack_quadlet_unit_name }}.kube"
   when: mesh_17711_stack_do__dns_stack_quadlet_enable | bool
 
 - name: Reload user systemd daemon for DNS stack

@@ -4,7 +4,6 @@ mesh_17711_stack_do__dns_stack_enable_adguard: true
 
 mesh_17711_stack_do__dns_stack_timezone: "Europe/Paris"
 
-mesh_17711_stack_do__dns_stack_podman_compose_dir: "/data/17711/do/dns"
 mesh_17711_stack_do__dns_unbound_config_dir: "/data/17711/do/dns/config"
 mesh_17711_stack_do__dns_adguard_work_dir: "/data/17711/do/adguard/work"
 mesh_17711_stack_do__dns_adguard_conf_dir: "/data/17711/do/adguard/conf"
@@ -16,9 +15,6 @@ mesh_17711_stack_do__dns_adguard_image: "docker.io/adguard/adguardhome:v0.107.69
 mesh_17711_stack_do__dns_stack_ops_user: "ops"
 mesh_17711_stack_do__dns_stack_ops_group: "{{ mesh_17711_stack_do__dns_stack_ops_user }}"
 
-# Where the compose file is stored for this user
-mesh_17711_stack_do__dns_stack_compose_dir: "/home/{{ mesh_17711_stack_do__dns_stack_ops_user }}/.config/17711"
-mesh_17711_stack_do__dns_stack_compose_file: "{{ mesh_17711_stack_do__dns_stack_compose_dir }}/stack-do-dns.yml"
 
 # Quadlet directory for user services
 mesh_17711_stack_do__dns_stack_quadlet_dir: "/home/{{ mesh_17711_stack_do__dns_stack_ops_user }}/.config/containers/systemd"
