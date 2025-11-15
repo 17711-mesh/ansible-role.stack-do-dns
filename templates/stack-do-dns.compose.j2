@@ -1,38 +1,8 @@
-version: '3.8'
-services:
-{% if mesh_17711_stack_do__dns_stack_enable_unbound | bool %}
-  unbound:
-    image: "{{ mesh_17711_stack_do__dns_unbound_image }}"
-    volumes:
-      - "{{ mesh_17711_stack_do__dns_unbound_config_dir }}:/etc/unbound:ro"
-    networks:
-      - dns
-    restart: always
-{% endif %}
+[Unit]
+Description=17711 DNS stack (Unbound + AdGuard Home)
 
-{% if mesh_17711_stack_do__dns_stack_enable_adguard | bool %}
-  adguard:
-    image: "{{ mesh_17711_stack_do__dns_adguard_image }}"
-    volumes:
-      - "{{ mesh_17711_stack_do__dns_adguard_work_dir }}:/opt/adguardhome/work"
-      - "{{ mesh_17711_stack_do__dns_adguard_conf_dir }}:/opt/adguardhome/conf"
-    ports:
-      {% for ip in mesh_17711_stack_do__dns_adguard_dns_bind_ipv4 %}
-      - "{{ ip }}:53:53/tcp"
-      - "{{ ip }}:53:53/udp"
-      {% endfor %}
-      {% if mesh_17711_stack_do__dns_enable_ipv6 %}
-      {% for ip in mesh_17711_stack_do__dns_adguard_dns_bind_ipv6 %}
-      - "{{ ip }}:53:53/tcp"
-      - "{{ ip }}:53:53/udp"
-      {% endfor %}
-      {% endif %}
-      - "127.0.0.1:{{ mesh_17711_stack_do__dns_admin_port }}:3000/tcp"
-    networks:
-      - dns
-    restart: always
-{% endif %}
+[Container]
+ComposeFile={{ mesh_17711_stack_do__dns_stack_compose_file }}
 
-networks:
-  dns:
-    driver: bridge
+[Install]
+WantedBy=default.target
