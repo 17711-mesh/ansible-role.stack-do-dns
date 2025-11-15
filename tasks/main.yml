@@ -87,33 +87,6 @@
   ansible.builtin.command: systemctl --user daemon-reload
   when: mesh_17711_stack_do__dns_stack_quadlet_enable | bool
 
-- name: Check if quadlet generated the service file
-  become: true
-  become_user: "{{ mesh_17711_stack_do__dns_stack_ops_user }}"
-  stat:
-    path: "/home/{{ mesh_17711_stack_do__dns_stack_ops_user }}/.config/systemd/user/{{ mesh_17711_stack_do__dns_stack_quadlet_unit_name }}.service"
-  register: service_file
-  when: mesh_17711_stack_do__dns_stack_quadlet_enable | bool
-
-- name: Print stat result
-  debug:
-    var: service_file
-  when: mesh_17711_stack_do__dns_stack_quadlet_enable | bool
-
-- name: Check quadlet generator logs
-  become: true
-  become_user: "{{ mesh_17711_stack_do__dns_stack_ops_user }}"
-  ansible.builtin.command: journalctl --user -u systemd-quadlet-generator --no-pager
-  register: quadlet_logs
-  changed_when: false
-  failed_when: false
-  when: mesh_17711_stack_do__dns_stack_quadlet_enable | bool
-
-- name: Print quadlet logs
-  debug:
-    var: quadlet_logs.stdout
-  when: mesh_17711_stack_do__dns_stack_quadlet_enable | bool
-
 - name: Ensure DNS stack is running
   become: true
   become_user: "{{ mesh_17711_stack_do__dns_stack_ops_user }}"
