@@ -23,6 +23,8 @@ mesh_17711_stack_do__dns_stack_quadlet_unit_name: "stack-do-dns"
 # Whether to create and enable the quadlet systemd user unit
 mesh_17711_stack_do__dns_stack_quadlet_enable: true
 
+ansible_role_compose_to_quadlet_version: "v0.1.0"
+
 
 mesh_17711_stack_do__dns_enable_ipv6: true
 

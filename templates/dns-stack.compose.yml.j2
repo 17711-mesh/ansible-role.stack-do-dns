@@ -1,0 +1,61 @@
+version: "3.8"
+services:
+{% if mesh_17711_stack_do__dns_stack_enable_unbound | bool %}
+  unbound:
+    image: "{{ mesh_17711_stack_do__dns_unbound_image }}"
+    volumes:
+      - unbound-config:/etc/unbound:ro
+    networks:
+      - default
+{% endif %}
+{% if mesh_17711_stack_do__dns_stack_enable_adguard | bool %}
+  adguard:
+    image: "{{ mesh_17711_stack_do__dns_adguard_image }}"
+    ports:
+    {% for ip in mesh_17711_stack_do__dns_adguard_dns_bind_ipv4 %}
+      - "{{ ip }}:53:53/tcp"
+      - "{{ ip }}:53:53/udp"
+    {% endfor %}
+    {% if mesh_17711_stack_do__dns_enable_ipv6 %}
+    {% for ip in mesh_17711_stack_do__dns_adguard_dns_bind_ipv6 %}
+      - "{{ ip }}:53:53/tcp"
+      - "{{ ip }}:53:53/udp"
+    {% endfor %}
+    {% endif %}
+      - "127.0.0.1:{{ mesh_17711_stack_do__dns_admin_port }}:3000/tcp"
+    volumes:
+      - adguard-work:/opt/adguardhome/work
+      - adguard-conf:/opt/adguardhome/conf
+    networks:
+      - default
+    depends_on:
+      - unbound
+{% endif %}
+
+networks:
+  default:
+    driver: bridge
+
+volumes:
+{% if mesh_17711_stack_do__dns_stack_enable_unbound | bool %}
+  unbound-config:
+    driver: local
+    driver_opts:
+      type: none
+      device: "{{ mesh_17711_stack_do__dns_unbound_config_dir }}"
+      o: bind
+{% endif %}
+{% if mesh_17711_stack_do__dns_stack_enable_adguard | bool %}
+  adguard-work:
+    driver: local
+    driver_opts:
+      type: none
+      device: "{{ mesh_17711_stack_do__dns_adguard_work_dir }}"
+      o: bind
+  adguard-conf:
+    driver: local
+    driver_opts:
+      type: none
+      device: "{{ mesh_17711_stack_do__dns_adguard_conf_dir }}"
+      o: bind
+{% endif %}

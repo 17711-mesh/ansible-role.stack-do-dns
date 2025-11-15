@@ -1,0 +1,6 @@
+---
+dependencies:
+  - src: https://github.com/17711-mesh/ansible-role.compose-to-quadlet
+    scm: git
+    version: v0.1.0 # Static version for ansible-galaxy
+    name: mesh_17711.compose_to_quadlet

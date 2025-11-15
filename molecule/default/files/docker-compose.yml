@@ -1,0 +1,43 @@
+version: "3.8"
+services:
+  unbound:
+    image: "docker.io/crazymax/unbound:1.24.0"
+    volumes:
+      - unbound-config:/etc/unbound:ro
+    networks:
+      - default
+  adguard:
+    image: "docker.io/adguard/adguardhome:v0.107.69"
+    ports:
+      - "127.0.0.1:3000:3000/tcp"
+    volumes:
+      - adguard-work:/opt/adguardhome/work
+      - adguard-conf:/opt/adguardhome/conf
+    networks:
+      - default
+    depends_on:
+      - unbound
+
+networks:
+  default:
+    driver: bridge
+
+volumes:
+  unbound-config:
+    driver: local
+    driver_opts:
+      type: none
+      device: "/data/17711/do/dns/config"
+      o: bind
+  adguard-work:
+    driver: local
+    driver_opts:
+      type: none
+      device: "/data/17711/do/adguard/work"
+      o: bind
+  adguard-conf:
+    driver: local
+    driver_opts:
+      type: none
+      device: "/data/17711/do/adguard/conf"
+      o: bind

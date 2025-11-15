@@ -1,0 +1,111 @@
+---
+- name: Verify
+  hosts: all
+  become: false # We will check files owned by the ops user
+
+  vars:
+    mesh_17711_stack_do__dns_stack_ops_user: "ops"
+    mesh_17711_stack_do__dns_stack_quadlet_dir: "/home/ops/.config/containers/systemd"
+    mesh_17711_stack_do__dns_stack_quadlet_unit_name: "stack-do-dns"
+
+  tasks:
+    - name: Check that ops user home directory exists
+      ansible.builtin.stat:
+        path: "/home/{{ mesh_17711_stack_do__dns_stack_ops_user }}"
+      register: ops_home_dir
+
+    - name: Assert ops user home directory exists
+      ansible.builtin.assert:
+        that:
+          - ops_home_dir.stat.exists
+          - ops_home_dir.stat.isdir
+          - ops_home_dir.stat.pw_name == mesh_17711_stack_do__dns_stack_ops_user
+
+    - name: Check that Quadlet directory exists
+      ansible.builtin.stat:
+        path: "{{ mesh_17711_stack_do__dns_stack_quadlet_dir }}"
+      register: quadlet_dir
+
+    - name: Ensure Quadlet directory exists
+      ansible.builtin.assert:
+        that:
+          - quadlet_dir.stat.exists
+          - quadlet_dir.stat.isdir
+          - quadlet_dir.stat.pw_name == mesh_17711_stack_do__dns_stack_ops_user
+
+    - name: Check container unit files
+      ansible.builtin.stat:
+        path: "{{ mesh_17711_stack_do__dns_stack_quadlet_dir }}/{{ item }}"
+      loop:
+        - unbound.container
+        - adguard.container
+      register: container_units
+
+    - name: Assert container unit files exist
+      ansible.builtin.assert:
+        that:
+          - item.stat.exists
+          - item.stat.isreg
+          - item.stat.pw_name == mesh_17711_stack_do__dns_stack_ops_user
+        fail_msg: "Container unit {{ item.stat.path | default(item.item) }} is missing or not a regular file"
+      loop: "{{ container_units.results }}"
+
+    - name: Check network unit files
+      ansible.builtin.stat:
+        path: "{{ mesh_17711_stack_do__dns_stack_quadlet_dir }}/{{ item }}"
+      loop:
+        - default.network
+      register: network_units
+
+    - name: Assert network unit files exist
+      ansible.builtin.assert:
+        that:
+          - item.stat.exists
+          - item.stat.isreg
+          - item.stat.pw_name == mesh_17711_stack_do__dns_stack_ops_user
+        fail_msg: "Network unit {{ item.stat.path | default(item.item) }} is missing or not a regular file"
+      loop: "{{ network_units.results }}"
+
+    - name: Check volume unit files
+      ansible.builtin.stat:
+        path: "{{ mesh_17711_stack_do__dns_stack_quadlet_dir }}/{{ item }}"
+      loop:
+        - unbound-config.volume
+        - adguard-work.volume
+        - adguard-conf.volume
+      register: volume_units
+
+    - name: Assert volume unit files exist
+      ansible.builtin.assert:
+        that:
+          - item.stat.exists
+          - item.stat.isreg
+          - item.stat.pw_name == mesh_17711_stack_do__dns_stack_ops_user
+        fail_msg: "Volume unit {{ item.stat.path | default(item.item) }} is missing or not a regular file"
+      loop: "{{ volume_units.results }}"
+
+    - name: Check stack target unit file
+      ansible.builtin.stat:
+        path: "{{ mesh_17711_stack_do__dns_stack_quadlet_dir }}/{{ mesh_17711_stack_do__dns_stack_quadlet_unit_name }}.target"
+      register: stack_target
+
+    - name: Assert stack target unit exists
+      ansible.builtin.assert:
+        that:
+          - stack_target.stat.exists
+          - stack_target.stat.isreg
+          - stack_target.stat.pw_name == mesh_17711_stack_do__dns_stack_ops_user
+
+    # Idempotence check
+    - name: Run role again to check idempotence
+      ansible.builtin.import_role:
+        name: ansible-role.stack-do-dns
+      vars:
+        mesh_17711_stack_do__dns_compose_file_path: "{{ compose_file_path }}"
+      register: idempotence_check
+
+    - name: Assert no changes were made on second run
+      ansible.builtin.assert:
+        that:
+          - idempotence_check is not changed
+        fail_msg: "Idempotence check failed! Changes were detected on the second run."

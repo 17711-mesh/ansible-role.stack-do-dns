@@ -56,28 +56,27 @@
     - mesh_17711_stack_do__dns_stack_enable_unbound
     - not mesh_17711_stack_do__dns_use_forwarders | bool
 
-
-- name: Deploy quadlet kube file for the stack
+- name: Generate DNS stack compose file
   ansible.builtin.template:
-    src: "stack-do-dns.kube.j2"
-    dest: "{{ mesh_17711_stack_do__dns_stack_quadlet_dir }}/{{ mesh_17711_stack_do__dns_stack_quadlet_unit_name }}.kube"
+    src: "dns-stack.compose.yml.j2"
+    dest: "/tmp/dns-stack.compose.yml"
     owner: "{{ mesh_17711_stack_do__dns_stack_ops_user }}"
     group: "{{ mesh_17711_stack_do__dns_stack_ops_group }}"
     mode: "0644"
-  when: mesh_17711_stack_do__dns_stack_quadlet_enable | bool
+  when:
+    - mesh_17711_stack_do__dns_stack_enable_unbound or mesh_17711_stack_do__dns_stack_enable_adguard
 
-- name: Reload user systemd daemon for DNS stack
-  become: true
-  become_user: "{{ mesh_17711_stack_do__dns_stack_ops_user }}"
-  ansible.builtin.command: systemctl --user daemon-reload
-  when: mesh_17711_stack_do__dns_stack_quadlet_enable | bool
 
-- name: Ensure DNS stack is running
-  become: true
-  become_user: "{{ mesh_17711_stack_do__dns_stack_ops_user }}"
-  ansible.builtin.systemd:
-    name: "{{ mesh_17711_stack_do__dns_stack_quadlet_unit_name }}"
-    scope: user
-    enabled: true
-    state: started
-  when: mesh_17711_stack_do__dns_stack_quadlet_enable | bool
+
+
+- name: Include compose-to-quadlet role to deploy DNS stack
+  ansible.builtin.include_role:
+    name: mesh_17711.compose_to_quadlet
+  vars:
+    compose_file_path: "/tmp/dns-stack.compose.yml"
+    quadlet_output_dir: "{{ mesh_17711_stack_do__dns_stack_quadlet_dir }}"
+    quadlet_stack_name: "{{ mesh_17711_stack_do__dns_stack_quadlet_unit_name }}"
+    compose_to_quadlet_src_path: "/opt/python.compose-to-quadlet" # Assuming this path is consistent
+  when:
+    - mesh_17711_stack_do__dns_stack_quadlet_enable | bool
+    - mesh_17711_stack_do__dns_stack_enable_unbound or mesh_17711_stack_do__dns_stack_enable_adguard

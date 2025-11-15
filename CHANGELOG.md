@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.1] - 2025-11-15
+
+### Added
+
+- **Molecule Test Suite:** Implemented a comprehensive Molecule test suite using the Podman driver.
+  - Verifies basic role convergence and idempotence.
+  - Ensures correct integration with `ansible-role.compose-to-quadlet` by checking for generated quadlet unit files (container, network, volume, target).
+  - Validates the creation of the `ops` user and the quadlet directory structure.
+- **Testing Documentation:** Updated `README.md` with a detailed "Testing / Molecule" section, including instructions for setting up a Python virtual environment and running Molecule commands.
+- **Role Dependency Declaration:** Declared `mesh_17711.compose_to_quadlet` as a dependency in `meta/main.yml`.
+- **Testing Requirements:** Added `requirements.txt` for installing Molecule and its dependencies.
+
 ## [0.1.0] - 2025-11-14
 
 ### Added
